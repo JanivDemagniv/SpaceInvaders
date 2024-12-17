@@ -18,8 +18,8 @@ x =100
 #Importing an images
 player_surf = pygame.image.load(join('images','player.png')).convert_alpha()
 player_react = player_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HIEGHT / 2))
-player_dir = pygame.math.Vector2(1,1)
-player_speed = 100
+player_dir = pygame.math.Vector2()
+player_speed = 300
 
 meteor_surf = pygame.image.load(join('images','meteor.png')).convert_alpha()
 meteor_react = meteor_surf.get_frect(center = (WINDOW_WIDTH /2,WINDOW_HIEGHT/2 + 100))
@@ -37,6 +37,17 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
+    #Input
+    keys = pygame.key.get_pressed()
+    player_dir.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+    player_dir.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+    player_dir = player_dir.normalize() if player_dir else player_dir
+    player_react.center += player_dir * player_speed * dt
+
+    recent_keys = pygame.key.get_just_pressed()
+    if recent_keys[pygame.K_SPACE]:
+        print('Fire!')
+
 
     #Draw Game
     display_surface.fill('darkgray')
@@ -45,11 +56,6 @@ while running:
     display_surface.blit(meteor_surf,meteor_react)
     display_surface.blit(laser_surf,laser_rect)
     display_surface.blit(player_surf,player_react)
-    player_react.center += player_dir * player_speed * dt
-    if player_react.bottom >= WINDOW_HIEGHT or player_react.top <= 0:
-        player_dir.y *= -1
-    if player_react.right >= WINDOW_WIDTH or player_react.left <= 0:
-        player_dir.x *= -1
 
     
     pygame.display.update()
