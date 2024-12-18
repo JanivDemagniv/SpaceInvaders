@@ -119,6 +119,8 @@ pygame.init()
 WINDOW_WIDTH,WINDOW_HIEGHT = 1280,720
 display_surface = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HIEGHT))
 pygame.display.set_caption('Space Shooter')
+icon = pygame.image.load(join('images','icon.svg'))
+pygame.display.set_icon(icon)
 running = True
 clock = pygame.time.Clock()
 score = 0
