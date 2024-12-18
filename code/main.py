@@ -82,6 +82,7 @@ star_surf = pygame.image.load(join('images','star.png')).convert_alpha()
 
 #Sprites
 all_sprites = pygame.sprite.Group()
+meteor_sprites = pygame.sprite.Group()
 star_surf = pygame.image.load(join('images','star.png')).convert_alpha()
 for i in range(20):
     Star(all_sprites , star_surf)
@@ -98,9 +99,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == meteor_event:
-            Meteor(meteor_surf,(randint(0,WINDOW_WIDTH),randint(-200,-100)),all_sprites)
+            Meteor(meteor_surf,(randint(0,WINDOW_WIDTH),randint(-200,-100)),(all_sprites,meteor_sprites))
 
+    #Update
     all_sprites.update(dt)
+    collision_sprites = pygame.sprite.spritecollide(player,meteor_sprites,True)
+    if collision_sprites:
+        print(collision_sprites[0])
 
     #Draw Game
     display_surface.fill('darkgray')
