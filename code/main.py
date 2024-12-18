@@ -2,6 +2,31 @@ import pygame
 from os.path import join
 from random import randint
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self, groups):
+        super().__init__(groups)
+        self.image = pygame.image.load(join('images','player.png')).convert_alpha()
+        self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HIEGHT / 2))
+        self.dir = pygame.math.Vector2()
+        self.speed = 300
+
+    def update(self,dt):
+        keys = pygame.key.get_pressed()
+        self.dir.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+        self.dir.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        self.dir = self.dir.normalize() if self.dir else self.dir
+        self.rect.center += self.dir * self.speed * dt
+
+        recent_keys = pygame.key.get_just_pressed()
+        if recent_keys[pygame.K_SPACE]:
+            print('Fire!')
+
+class Star(pygame.sprite.Sprite):
+    def __init__(self, groups , surf):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(center = (randint(0,WINDOW_WIDTH),randint(0,WINDOW_HIEGHT)))
+
 #General Setup
 pygame.init()
 WINDOW_WIDTH,WINDOW_HIEGHT = 1280,720
@@ -15,11 +40,12 @@ surf = pygame.Surface((100,200))
 surf.fill('orange')
 x =100
 
-#Importing an images
-player_surf = pygame.image.load(join('images','player.png')).convert_alpha()
-player_react = player_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HIEGHT / 2))
-player_dir = pygame.math.Vector2()
-player_speed = 300
+all_sprites = pygame.sprite.Group()
+star_surf = pygame.image.load(join('images','star.png')).convert_alpha()
+for i in range(20):
+    Star(all_sprites , star_surf)
+player = Player(all_sprites)
+
 
 meteor_surf = pygame.image.load(join('images','meteor.png')).convert_alpha()
 meteor_react = meteor_surf.get_frect(center = (WINDOW_WIDTH /2,WINDOW_HIEGHT/2 + 100))
@@ -36,27 +62,15 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
-    #Input
-    keys = pygame.key.get_pressed()
-    player_dir.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
-    player_dir.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
-    player_dir = player_dir.normalize() if player_dir else player_dir
-    player_react.center += player_dir * player_speed * dt
 
-    recent_keys = pygame.key.get_just_pressed()
-    if recent_keys[pygame.K_SPACE]:
-        print('Fire!')
-
+    all_sprites.update(dt)
 
     #Draw Game
     display_surface.fill('darkgray')
-    for pos in star_positions:
-        display_surface.blit(star_surf,pos)
     display_surface.blit(meteor_surf,meteor_react)
     display_surface.blit(laser_surf,laser_rect)
-    display_surface.blit(player_surf,player_react)
 
+    all_sprites.draw(display_surface)
     
     pygame.display.update()
 
