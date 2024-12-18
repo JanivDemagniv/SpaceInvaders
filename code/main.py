@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
 
         recent_keys = pygame.key.get_just_pressed()
         if recent_keys[pygame.K_SPACE] and self.can_shoot:
-            Laser(laser_surf,self.rect.midtop,all_sprites)
+            Laser(laser_surf,self.rect.midtop,(all_sprites,laser_sprites))
             self.can_shoot = False
             self.laser_shoot_time = pygame.time.get_ticks()
         self.laser_time()
@@ -67,6 +67,26 @@ class Meteor(pygame.sprite.Sprite):
         if current_time - self.init_time >= self.life_time:
             self.kill()
 
+def colliosioins():
+    global running
+
+    collision_sprites = pygame.sprite.spritecollide(player,meteor_sprites,True)
+    if collision_sprites:
+        running = False
+    for laser in laser_sprites:
+        collied_sprites = pygame.sprite.spritecollide(laser,meteor_sprites,True)
+        if collied_sprites:
+            laser.kill()
+    
+
+def display_score():
+    current_time = pygame.time.get_ticks() // 100
+    text_surf = text.render(str(current_time),True,(240,240,240))
+    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, WINDOW_HIEGHT - 50))
+    display_surface.blit(text_surf,text_rect)
+    pygame.draw.rect(display_surface,(240,240,240),text_rect.inflate(20,10).move(0,-8),5,10)
+
+
 #General Setup
 pygame.init()
 WINDOW_WIDTH,WINDOW_HIEGHT = 1280,720
@@ -79,10 +99,12 @@ clock = pygame.time.Clock()
 meteor_surf = pygame.image.load(join('images','meteor.png')).convert_alpha()
 laser_surf = pygame.image.load(join('images','laser.png')).convert_alpha()
 star_surf = pygame.image.load(join('images','star.png')).convert_alpha()
+text = pygame.font.Font(join('images','Oxanium-Bold.ttf'), 50)
 
 #Sprites
 all_sprites = pygame.sprite.Group()
 meteor_sprites = pygame.sprite.Group()
+laser_sprites = pygame.sprite.Group()
 star_surf = pygame.image.load(join('images','star.png')).convert_alpha()
 for i in range(20):
     Star(all_sprites , star_surf)
@@ -103,15 +125,14 @@ while running:
 
     #Update
     all_sprites.update(dt)
-    collision_sprites = pygame.sprite.spritecollide(player,meteor_sprites,True)
-    if collision_sprites:
-        print(collision_sprites[0])
+    colliosioins()
 
     #Draw Game
-    display_surface.fill('darkgray')
+    display_surface.fill('#3a2e3f')
 
+    display_score()
     all_sprites.draw(display_surface)
-    
+
     pygame.display.update()
 
 pygame.quit()
