@@ -157,6 +157,7 @@ while running:
             running = False
         if event.type == meteor_event:
             Meteor(meteor_surf,(randint(0,WINDOW_WIDTH),randint(-200,-100)),(all_sprites,meteor_sprites))
+        
 
     #Update
     all_sprites.update(dt)
